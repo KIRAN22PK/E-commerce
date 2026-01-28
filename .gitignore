@@ -1,0 +1,22 @@
+# Virtual environments
+.venv/
+.venv310/
+env/
+
+# Python
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# React / Node
+userfrnt/node_modules/
+userfrnt/build/
+userback/venv310/
+userfrnt/.env
+
+# OS
+.DS_Store
