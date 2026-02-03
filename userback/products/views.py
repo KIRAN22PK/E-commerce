@@ -1,44 +1,42 @@
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from products.services.normalize1 import normalize_entities
+# from products.services.normalize1 import normalize_entities
 from products.models import UserCart,Product,UserOrder
-from products.services.aiintent import extract_intent
-from products.services.productsearch import product_search
+# from products.services.aiintent import extract_intent
+# from products.services.productsearch import product_search
 from products.serializers import ProductSerializer,UserCartWriteSerializer,UserCartSerializer,UserOrderSerializer,UserOrderCreateSerializer
 from django.shortcuts import get_object_or_404
-from .products_chat.prd_text import products_to_text
-from .products_chat.prd_llm import build_product_chat_prompt
 from rest_framework import status
 from .recommender.model_loader import load_model
-
-@api_view(["POST"])
-def ai_search(request):
-    user_input = request.data.get("query")
-    if not user_input:
-       return Response([], status=200) 
-    intent_data = extract_intent(user_input)
-    print('intent data', intent_data)
-    entities = normalize_entities(intent_data["entities"])
-    print('entities', entities)
-    products = product_search(intent_data["entities"])
-    print('fetched products', products)
-    if intent_data["intent"] =='product_search':
-       serializer = ProductSerializer(products, many=True)
-       print(serializer.data)
-       return Response({
-        "intent": intent_data["intent"],
-        "filters": intent_data["entities"],
-        "results": serializer.data
-        })
-    else:
-        product_context = products_to_text(products)
-        prompt = build_product_chat_prompt(user_input, product_context)
-        return Response({
-            "intent": intent_data["intent"],
-            "filters": intent_data["entities"],
-            "chat_prompt": prompt
-        })
+from .embedding_chat.pipeline import semantic_product_search
+# @api_view(["POST"])
+# def ai_search(request):
+#     user_input = request.data.get("query")
+#     if not user_input:
+#        return Response([], status=200) 
+#     intent_data = extract_intent(user_input)
+#     print('intent data', intent_data)
+#     entities = normalize_entities(intent_data["entities"])
+#     print('entities', entities)
+#     products = product_search(intent_data["entities"])
+#     print('fetched products', products)
+#     if intent_data["intent"] =='product_search':
+#        serializer = ProductSerializer(products, many=True)
+#        print(serializer.data)
+#        return Response({
+#         "intent": intent_data["intent"],
+#         "filters": intent_data["entities"],
+#         "results": serializer.data
+#         })
+#     else:
+#         product_context = products_to_text(products)
+#         prompt = build_product_chat_prompt(user_input, product_context)
+#         return Response({
+#             "intent": intent_data["intent"],
+#             "filters": intent_data["entities"],
+#             "chat_prompt": prompt
+#         })
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def user_cart(request):
@@ -57,7 +55,8 @@ def user_cart(request):
             UserCart(
                 user=request.user,
                 product=product,
-                quantity=item["quantity"]
+                quantity=item["quantity"],
+                category=product.category,
             )
         )
 
@@ -195,3 +194,21 @@ def recommend_products(request):
         products = Product.objects.filter(id__in=recommended_ids)
 
     return Response(ProductSerializer(products, many=True).data)
+
+@api_view(["POST"])
+def semantic_search(request):
+    query = request.data.get("query", "")
+    answer, products = semantic_product_search(query)
+    serializer = ProductSerializer(products, many=True)
+    return Response({
+        "answer": answer,
+        "products": 
+            # {
+            #     "id": p.id,
+            #     "name": p.name,
+            #     "price": p.price,
+            #     "image": p.image_url
+            # } for p in products
+            serializer.data
+        
+    })

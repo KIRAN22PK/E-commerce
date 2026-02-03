@@ -32,19 +32,19 @@ def train_recommender():
 
     # Build user-product matrix
     matrix = df.pivot_table(
-        index="user",
-        columns="product",
-        values="score",
-        aggfunc="sum",
-        fill_value=0
+    index="product",
+    columns="user",
+    values="score",
+    aggfunc="sum",
+    fill_value=0
     )
 
-    # Product-product similarity
-    similarity = cosine_similarity(matrix.T)
+    similarity = cosine_similarity(matrix)
+
 
     model = {
         "similarity": similarity,
-        "product_ids": list(matrix.columns)
+        "product_ids": list(matrix.index)
     }
 
     with open(MODEL_PATH, "wb") as f:

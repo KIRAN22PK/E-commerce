@@ -43,6 +43,7 @@ class UserOrderSerializer(serializers.ModelSerializer):
             "image_url": obj.product.image_url,
             "brand": obj.product.brand,
             "price": obj.product.price,
+            "description": obj.product.description,
         }
 
 
@@ -50,7 +51,7 @@ class UserOrderCreateSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     quantity = serializers.IntegerField(min_value=1)
 
-    def validate_product_id(self, value):
-        if not Product.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Product does not exist")
-        return value
+    # def validate_product_id(self, value):
+    #     if not Product.objects.filter(id=value).exists():
+    #         raise serializers.ValidationError("Product does not exist")
+    #     return value
