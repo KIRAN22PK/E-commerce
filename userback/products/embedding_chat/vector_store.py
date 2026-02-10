@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 import pickle
 import os
-from .config import EMBEDDING_DIM
+from utils.ml_loader import EMBEDDING_DIM
 
 BASE_DIR = os.path.dirname(__file__)
 INDEX_PATH = os.path.join(BASE_DIR, "products.index")
