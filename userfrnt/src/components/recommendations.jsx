@@ -1,14 +1,33 @@
 import { useEffect } from "react";
 import axios from "axios";
-import { Card, Container } from "react-bootstrap";
-import { Button } from "react-bootstrap";
 import AppNavbar from "./navbar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setRProducts, setRLoading } from "../store/recommendation";
-import { useSelector } from "react-redux";
+import { addToCart } from "../store/cartoperations";
+import { useNavigate } from "react-router-dom";
+
+/* ⭐ Inline Stars */
+function Stars({ rating }) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+
+  return (
+    <span style={{ color: "#f5c518", fontSize: "14px" }}>
+      {"★".repeat(full)}
+      {half && "☆"}
+      {"☆".repeat(empty)}
+    </span>
+  );
+}
+
 export default function Recommendations() {
   const dispatch = useDispatch();
-  const recommendations = useSelector((state) => state.recommendations.items);
+  const navigate = useNavigate();
+
+  const recommendations = useSelector(
+    (state) => state.recommendations.items
+  );
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -24,11 +43,7 @@ export default function Recommendations() {
           }
         );
 
-        dispatch(
-          setRProducts(
-            res.data
-          )
-        );
+        dispatch(setRProducts(res.data));
       } catch (err) {
         console.error("Recommendation error:", err);
       } finally {
@@ -41,27 +56,69 @@ export default function Recommendations() {
 
   return (
     <>
-   {console.log(recommendations)}
       <AppNavbar />
-      <Container>
-        <h2>Recommended Products for you</h2>
+
+      <div className="max-w-4xl mx-auto px-4">
+        <h2 className="text-xl font-semibold mb-5">
+          Recommended Products for you
+        </h2>
 
         {recommendations.length === 0 ? (
-          <p>No recommendations yet</p>
+          <p className="text-gray-500">No recommendations yet</p>
         ) : (
-          recommendations.map((item) => (
-            <Button style={{ border: "none", background: "none", padding: 0, margin: 0 }}>
-              <Card key={item.id} className="mb-3">
-              <Card.Body>
-                <Card.Img src={item.image_url} style={{ height: "200px", objectFit:"cover" }} />
-                <Card.Title>{item.name}</Card.Title>
-                <p>Price: {item.price}</p>
-              </Card.Body>
-              </Card>
-            </Button>
-          ))
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {recommendations.map((item) => (
+              <div
+                key={item.id}
+                onClick={() =>
+                  navigate(`/product/${item.id}`, {
+                    state: { product: item }
+                  })
+                }
+                className="cursor-pointer border rounded-xl bg-white hover:shadow-lg transition"
+              >
+                {/* IMAGE */}
+                <div className="h-56 bg-gray-100 rounded-t-xl flex items-center justify-center overflow-hidden">
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    className="h-full w-auto object-contain px-3"
+                  />
+                </div>
+
+                {/* CONTENT */}
+                <div className="p-3">
+                  <h3 className="text-base font-medium truncate">
+                    {item.name}
+                  </h3>
+
+                  {/* ⭐ Rating + Count */}
+                  <div className="mt-1">
+                    <Stars rating={item.average_rating || 0} />
+                    <span className="text-xs text-gray-600">
+                      {" "}({item.total_reviews || 0})
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mt-1">
+                    Price: ₹ {item.price}
+                  </p>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent navigation
+                      dispatch(addToCart(item));
+                    }}
+                    className="mt-3 w-full bg-black text-white text-sm py-2 rounded hover:bg-gray-800 transition"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </Container>
+      </div>
     </>
   );
 }

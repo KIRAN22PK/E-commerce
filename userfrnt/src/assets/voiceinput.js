@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setSearchQuery } from "../store/searchSlice";
 import { performSearch } from "../store/searchOperations";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function useVoiceInput() {
   const dispatch = useDispatch();
@@ -15,21 +15,26 @@ export default function useVoiceInput() {
   const [listening, setListening] = useState(false);
 
   const startListening = () => {
+    if (listening) return;
+
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Speech recognition not supported");
+      alert("Speech recognition not supported in this browser");
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.interimResults = true; // ✅ important
-    recognition.continuous = true;
+    if (!recognitionRef.current) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.lang = "en-IN";
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.continuous = true;
+    }
+
+    const recognition = recognitionRef.current;
 
     transcriptRef.current = "";
-    recognitionRef.current = recognition;
     setListening(true);
     recognition.start();
 
@@ -41,23 +46,23 @@ export default function useVoiceInput() {
     };
 
     recognition.onstart = () => {
-      // start timer ONLY after mic actually listens
       resetSilenceTimer();
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = "";
-      let finalTranscript = "";
+      let interim = "";
+      let finalText = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+          finalText += text;
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          interim += text;
         }
       }
 
-      const combined = (finalTranscript || interimTranscript).trim();
+      const combined = (finalText || interim).trim();
 
       if (combined) {
         transcriptRef.current = combined;

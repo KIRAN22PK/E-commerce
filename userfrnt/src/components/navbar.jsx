@@ -2,50 +2,91 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import Offcanvas from "react-bootstrap/Offcanvas";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchQuery } from "../store/searchSlice";
 import { performSearch } from "../store/searchOperations";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import useVoiceInput from "../assets/voiceinput.js";
+import { Link, useNavigate } from "react-router-dom";
+import useVoiceInput from "../assets/voiceinput";
+
 export default function AppNavbar() {
-  const { startListening } = useVoiceInput();
+  const { startListening, listening } = useVoiceInput();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const query = useSelector((state) => state.search.query);
-  const { listening } = useVoiceInput();
+
   return (
-    <Navbar className="bg-body-tertiary">
-      <Container>
-        <Link to="/search">
-          <Navbar.Brand>Home</Navbar.Brand>
-        </Link>
-        <Button type="button" onClick={startListening}>
-          {listening ? "🎙️ Listening..." : "🎤"}
-        </Button>
+      <Navbar
+      expand="md"
+      fixed="top"
+      className="bg-body-tertiary shadow-sm"
+      >
+     <Container fluid>
+        <Navbar.Toggle aria-controls="mobile-menu" />
+
+        <Navbar.Brand className="fw-bold tracking-wide">
+          ShopSphere
+        </Navbar.Brand>
+
         <Form
-          className="d-flex"
+          className="d-flex flex-grow-1 mx-2 max-w-xl"
           onSubmit={(e) => {
             e.preventDefault();
-            dispatch(performSearch(query, navigate));
+            if (query.trim()) {
+              dispatch(performSearch(query, navigate));
+            }
           }}
         >
+          <Button
+            type="button"
+            variant="outline-secondary"
+            onClick={startListening}
+            disabled={listening}
+            className="me-1"
+          >
+            {listening ? "🎙️" : "🎤"}
+          </Button>
+
           <Form.Control
             value={query}
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             placeholder="Search anything..."
           />
-          <Button type="submit">Search</Button>
+
+          <Button type="submit" className="ms-1">
+            Search
+          </Button>
         </Form>
-        <Link to="/cart">
-          <Navbar.Brand>Cart</Navbar.Brand>
-        </Link>
-        <Link to="/orders">
-          <Navbar.Brand>Orders</Navbar.Brand>
-        </Link>
-        <Link to="/recommendations">
-          <Navbar.Brand>For you</Navbar.Brand>
-        </Link>
+
+        <Nav className="ms-auto d-none d-md-flex gap-3">
+          <Nav.Link as={Link} to="/search">Home</Nav.Link>
+          <Nav.Link as={Link} to="/cart">Cart</Nav.Link>
+          <Nav.Link as={Link} to="/orders">Orders</Nav.Link>
+          <Nav.Link as={Link} to="/recommendations">Recommended</Nav.Link>
+          <Nav.Link as={Link} to="/compare">Compare</Nav.Link>
+        </Nav>
+
+        <Navbar.Offcanvas
+          id="mobile-menu"
+          placement="start"
+          className="d-md-none"
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Menu</Offcanvas.Title>
+          </Offcanvas.Header>
+
+          <Offcanvas.Body>
+            <Nav className="flex-column gap-2">
+              <Nav.Link as={Link} to="/search">Home</Nav.Link>
+              <Nav.Link as={Link} to="/cart">Cart</Nav.Link>
+              <Nav.Link as={Link} to="/orders">Orders</Nav.Link>
+              <Nav.Link as={Link} to="/recommendations">Recommended</Nav.Link>
+              <Nav.Link as={Link} to="/compare">Compare</Nav.Link>
+            </Nav>
+          </Offcanvas.Body>
+        </Navbar.Offcanvas>
       </Container>
     </Navbar>
   );

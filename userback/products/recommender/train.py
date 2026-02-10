@@ -17,11 +17,11 @@ MODEL_PATH = os.path.join(
 def train_recommender():
     data = []
 
-    # Strong signal: orders
+    
     for o in UserOrder.objects.all():
         data.append([o.user_id, o.product_id, 3])
 
-    # Weak signal: cart
+   
     for c in UserCart.objects.all():
         data.append([c.user_id, c.product_id, 1])
 
@@ -30,7 +30,7 @@ def train_recommender():
 
     df = pd.DataFrame(data, columns=["user", "product", "score"])
 
-    # Build user-product matrix
+    
     matrix = df.pivot_table(
     index="product",
     columns="user",

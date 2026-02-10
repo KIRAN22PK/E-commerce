@@ -10,6 +10,8 @@ def product_to_text(product):
     Brand: {product.brand}
     Category: {product.category}
     Subcategory: {product.subcategory}
+    Subcategory1: {product.subcategory1}
+    Subcategory2: {product.subcategory2}
     Gender: {product.gender}
     Description: {product.description}
     Attributes: {attrs}

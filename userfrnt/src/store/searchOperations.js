@@ -6,7 +6,7 @@ export const performSearch = (query,navigate) => async (dispatch) => {
 
   try {
     const res = await axios.post(
-      "http://127.0.0.1:8000/api/products/search/",
+      "http://127.0.0.1:8000/api/products/semantic-search/",
       { query },
       {
         headers: {
@@ -14,27 +14,34 @@ export const performSearch = (query,navigate) => async (dispatch) => {
         },
       }
     );
-    console.log(res.data)
-
-    if (res.data.intent === "product_search") {
-      dispatch(
-        searchSuccess({
-          intent: "product_search",
-          products: res.data.results,
-        })
-      );
+    console.log(res.data.products)
+    dispatch(
+         searchSuccess({
+           intent: "product_search",
+          products: res.data.products,
+         })
+       );
       dispatch(searchFail())
       navigate("/search");
-    } else {
-      dispatch(
-        searchSuccess({
-          intent: "Chat_search",
-          chatResponse: res.data.chat_prompt,
-        })
-      );
-      dispatch(searchFail())
-      navigate("/chat");
-    }
+    // if (res.data.intent === "product_search") {
+    //   dispatch(
+    //     searchSuccess({
+    //       intent: "product_search",
+    //       products: res.products,
+    //     })
+    //   );
+    //   dispatch(searchFail())
+    //   navigate("/search");
+    // } else {
+    //   dispatch(
+    //     searchSuccess({
+    //       intent: "Chat_search",
+    //       chatResponse: res.data.chat_prompt,
+    //     })
+    //   );
+    //   dispatch(searchFail())
+    //   navigate("/chat");
+    // }
   } catch (err) {
     dispatch(searchFail());
     console.error(err);

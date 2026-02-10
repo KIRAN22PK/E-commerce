@@ -1,15 +1,19 @@
 from unicodedata import category
 import requests
 from products.models import Product
+from products.symspell.corrector import correct_query
+from products.symspell.loader import get_brand_symspell, get_symspell
+from .text_builder import product_to_text
 from .retriever import retrieve_products
 from .answer_builder import build_answer
 import re
 from collections import Counter
 from collections import defaultdict
-from products.llm.t5_loader import get_t5
+
+
 def preprocess_query(q):
     q = q.lower()
-    q = q.replace(",", "")
+    q = q.replace(",", " ")
     q = q.replace("₹", "")
 
     # fix missing spaces
@@ -17,7 +21,6 @@ def preprocess_query(q):
     q = re.sub(r"(\d)([a-z])", r"\1 \2", q)
 
     return q
-tokenizer, model = get_t5()
 def parse_amount(val):
     if val.endswith("k"):
         return int(float(val[:-1]) * 1000)
@@ -53,137 +56,168 @@ def extract_price_filters(q):
         return price_gt, price_lt
     return price_gt, price_lt
 
-
-def get_dominant_subcategory(products, top_n=10):
-    """
-    Rank-weighted voting for subcategory.
-    Higher-ranked products contribute more.
-    """
-    scores = defaultdict(float)
-
-    for rank, product in enumerate(products[:top_n]):
-        weight = 1 / (rank + 1)   # rank-aware weight
-        scores[product.subcategory] += weight
-
-    if not scores:
-        return None
-
-    return max(scores, key=scores.get)
-
-# CATEGORY_KEYWORDS = {
-#     "electronics": ["mobile", "mobiles", "phone", "phones", "smartphone"],
-#     "footwear": ["shoe", "shoes", "footwear", "sneaker"],
-#     "clothing": ["shirt", "tshirt", "t-shirt", "jeans"]
-# }
-
-# def extract_category(query):
-#     for category, keywords in CATEGORY_KEYWORDS.items():
-#         for kw in keywords:
-#             if kw in query:
-#                 return category
-#     return None
-
-
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-
 def semantic_product_search(query):
-    # 1️⃣ Preprocess query
+    # 1️⃣ Light preprocessing (NOT semantic normalization)
     query = preprocess_query(query)
-    ranked_results = retrieve_products(query)
     print("Preprocessed query:", query)
-    print("Ranked results:", ranked_results)
-
-    # 2️⃣ Extract price filters
-    price_gt, price_lt = extract_price_filters(query)
-
-    # 3️⃣ Retrieve candidate products via embeddings
+    sym_spell = get_symspell()
+    brand_spell = get_brand_symspell()
+    query = correct_query(sym_spell, query)
+    print("Spell-corrected query:", query)
+    query = correct_query(brand_spell, query)
+    print("Brand-corrected query:", query)
+    # 2️⃣ First-pass embedding search (RAW query)
+    ranked_results = retrieve_products(query)
     product_ids = [r["product_id"] for r in ranked_results]
-    print("Retrieved product IDs:", product_ids)
-    # products = Product.objects.filter(id__in=product_ids)
-    # print("Initial product count:", products)
-    # product_map = {p.id: p for p in products}
-    # print("Product map", product_map)
-    product_map=Product.objects.in_bulk(product_ids)
+
+    product_map = Product.objects.in_bulk(product_ids)
     products = [product_map[i] for i in product_ids if i in product_map]
-    print("Ordered products:", products)
-    # category= extract_category(query)
-    # if category:
-    #     print("Applying category filter:", category)
-    #     products = products.filter(category__iexact=category)
-    # 4️⃣ Apply price filters ONLY if present
-    if price_lt is not None:
-        products = [p for p in products if p.price <= price_lt]
-    if price_gt is not None:
-        products = [p for p in products if p.price >= price_gt]
-    print("Post-price-filter product count:", products)
-    dominant_subcat = get_dominant_subcategory(products, top_n=10)
-    if dominant_subcat:
-        products = [p for p in products if p.subcategory == dominant_subcat]
+    print("Initial retrieved products:", products)
+    if not products:
+        return [], "No products found"
+    
+    # 3️⃣ Extract price filters (but DO NOT apply yet)
+    price_gt, price_lt = extract_price_filters(query)
+    
+    # 4️⃣ Take TOP-K for dominance inference
+    TOP_K = 3
+    top_k = products[:TOP_K]
+    top_1= products[0]
+    print("Top-1 product:", top_1)
+    print("top-1 brand:", top_1.brand)
+    if top_1.brand.lower() in query:
+        print("if")
+        refined_products = Product.objects.filter(brand=top_1.brand)
+        if price_lt is not None:
+         refined_products = [p for p in refined_products if p.price <= price_lt]
+        if price_gt is not None:
+         refined_products = [p for p in refined_products if p.price >= price_gt]
+        answer = build_answer(refined_products)
+        return refined_products, answer
+    else:
+       print("else")
+       refined_products = Product.objects.filter(subcategory=top_1.subcategory)
+       print("Products after subcategory filter:", refined_products)
+       answer = build_answer(refined_products)
+       return refined_products, answer
+#     print("Top-K products for dominance inference:", top_k)
 
-    # if price_lt is not None:
-    #     products = [p for p in products if p.price <= price_lt]
+#     # subcat2_list = [p.subcategory2 for p in top_k if p.subcategory2]
+#     subcat1_list1 = [p.subcategory1 for p in top_k if p.subcategory1]
 
-    # if price_gt is not None:
-    #     products = [p for p in products if p.price >= price_gt]
+#     # 5️⃣ Dominant-or-first logic
+#     def dominant_or_first(values):
+#         if not values:
+#             return None
+#         for v in values:
+#             if values.count(v) > 1:
+#                 return v
+#         return values[0]
 
-    # 5️⃣ Build answer from FINAL filtered products
-    print("Final product count:", products)
-    answer = build_answer(products)
-    # prompt = f"""
-    #   rewrite the following answer in a friendly and concise tone:
+#     # chosen_subcat2 = dominant_or_first(subcat2_list)
+#     chosen_subcat1 = dominant_or_first(subcat1_list1)
+#     # print("Chosen subcategory2:", chosen_subcat2)
+#     print("Chosen subcategory1:", chosen_subcat1)
+#     # 6️⃣ Find anchor product
+#     def get_anchor(products, level, value):
+#         for p in products:
+#             # if level == "subcategory2" and p.subcategory2 == value:
+#             #     return p
+#             if level == "subcategory1" and p.subcategory1 == value:
+#                 return p
+#         return products[0]
 
-    #   {answer}
-    #         """
-            
-    # inputs = tokenizer(
-    # prompt,
-    # return_tensors="pt",
-    # max_length=512,
-    # truncation=True
-    #   )
+#     # if chosen_subcat2:
+#     #     anchor = get_anchor(products, "subcategory2", chosen_subcat2)
+#     #     print("Anchor found using subcategory2",anchor)
+#     if chosen_subcat1:
+#         anchor = get_anchor(products, "subcategory1", chosen_subcat1)
+#         print("Anchor found using subcategory1",anchor)
+#     else:
+#         anchor = products[0]
+#         print("Anchor defaulted to first product",anchor)
+#     # anchor_category = anchor.category
+#     anchor_subcategory = anchor.subcategory
+#     anchor_subcat1 = anchor.subcategory1
+#     # 7️⃣ Re-embed using ANCHOR TEXT (THIS IS THE KEY)
+#     anchor_text = product_to_text(anchor)
+#     print("Anchor product for re-embedding:", anchor)
+#     refined_ranked = retrieve_products(anchor_text)
+#     print("Refined ranked results:", refined_ranked)
+#     refined_ids = [r["product_id"] for r in refined_ranked]
+#     refined_map = Product.objects.in_bulk(refined_ids)
+#     refined_products = [
+#         refined_map[i] for i in refined_ids if i in refined_map
+#     ]
 
-    # outputs = model.generate(
-    # inputs["input_ids"],
-    # max_length=120,
-    # num_beams=4,
-    # early_stopping=True
-    # )
+#     # 8️⃣ NOW apply price filter (LAST)
+#     if price_lt is not None:
+#         refined_products = [p for p in refined_products if p.price <= price_lt]
+#     if price_gt is not None:
+#         refined_products = [p for p in refined_products if p.price >= price_gt]
 
-    # friendly_answer = tokenizer.decode(
-    # outputs[0],
-    # skip_special_tokens=True
-    # )
+#     # 9️⃣ Fallback if price killed everything
+#     if not refined_products and anchor_subcat1:
+#         refined_products = [
+#         p for p in products
+#         if p.subcategory1 == anchor_subcat1
+#         ]
 
-    # print(friendly_answer)
+#     if not refined_products and anchor_subcategory:
+#         refined_products = [
+#             p for p in products
+#             if p.subcategory == anchor_subcategory
+#         ]
+#     # if not refined_products:
+#     #     refined_products = [
+#     #     p for p in products
+#     #     if p.category == anchor_category
+#     #    ]
+#   # fallback to embedding results
+#     else:
+#         refined_products = [
+#         p for p in refined_products
+#         if p.subcategory == anchor_subcategory
+#         ]
+        
+#     answer = build_answer(refined_products)
+#     print("ANSWER:", answer)
+# #     prompt = f"""
+# # answer question based on data:
 
+# # question:
+# # {query}
 
-    print("answer:", answer)
+# # data:
+# # {answer}
 
-#     prompt = f"""
-# You are an e-commerce assistant.
-# Answer the user question using ONLY the data below.
+# # final answer:
+# #     """
+# #     print("🚀 ENTERING T5 GENERATION 🚀")
+# #     inputs = tokenizer(
+# #     prompt,
+# #     return_tensors="pt",
+# #     max_length=512,
+# #     truncation=True
+# #       )
 
-# User question:
-# {query}
+# #     outputs = model.generate(
+# #     inputs["input_ids"],
+# #     max_length=120,
+# #     num_beams=4,
+# #     early_stopping=True
+# #      )
 
-# Data:
-# {answer}
-# """
+# #     decoded = tokenizer.decode(
+# #       outputs[0],
+# #       skip_special_tokens=True
+# #      )
 
-#     try:
-#         response = requests.post(
-#             OLLAMA_URL,
-#             json={
-#                 "model": "llama3",
-#                 "prompt": prompt,
-#                 "stream": False
-#             },
-#             timeout=60
-#         )
-#         llm_answer = response.json().get("response", "")
-#     except requests.RequestException as e:
-#         print("Ollama error:", e)
-#         llm_answer = "Sorry, I couldn't generate an answer."
+# #     print("🧪 RAW T5 OUTPUT:", repr(decoded), type(decoded))
 
-    return answer, products
+# #     friendly_answer = decoded
+
+# #     print("Friendly Answer:", friendly_answer)
+#     return refined_products, answer

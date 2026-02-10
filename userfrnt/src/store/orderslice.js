@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  items: [], // ordered products
+  items: [], 
 };
 
 const ordersSlice = createSlice({
@@ -14,7 +14,6 @@ const ordersSlice = createSlice({
       );
 
       if (item) {
-        // already ordered → increase quantity
         item.quantity += action.payload.quantity;
       } else {
         state.items.push({

@@ -10,6 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         products = Product.objects.all()
         texts = [product_to_text(p) for p in products]
+        print(texts)
         embeddings = embed_texts(texts)
         product_ids = [p.id for p in products]
         save_index(product_ids, embeddings)

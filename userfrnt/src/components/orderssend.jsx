@@ -6,11 +6,9 @@ export default function OrderSend() {
   const cart = useSelector((state) => state.orders.items);
 
   useEffect(() => {
-    // do not sync if user not logged in
     const token = localStorage.getItem("access");
     if (!token) return;
 
-    // optional: avoid empty cart sync on first render
     if (!cart || cart.length === 0) return;
 
     const syncCart = async () => {
@@ -37,5 +35,5 @@ export default function OrderSend() {
     syncCart();
   }, [cart]);
 
-  return null; // nothing to render
+  return null; 
 }

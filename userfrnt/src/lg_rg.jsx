@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { setCart } from "./store/cartoperations.js";
 import { setOrders } from "./store/orderslice.js";
 import { setSearchQuery } from "./store/searchSlice.js";
+import { Container, Card, Form, Button } from "react-bootstrap";
 const API_BASE = "http://127.0.0.1:8000/api/auth";
 
 export default function Auth() {
@@ -28,18 +29,15 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        // 🔐 LOGIN
         const res = await axios.post(`${API_BASE}/login/`, {
           username: formData.username,
           password: formData.password,
         });
 
-        // store JWT
         localStorage.setItem("access", res.data.access);
         localStorage.setItem("refresh", res.data.refresh);
         localStorage.setItem("username", res.data.username);
-        // fetch user cart from backend
-        dispatch(setSearchQuery("")); // reset search 
+        dispatch(setSearchQuery(""));
         const cartRes = await axios.get(
           "http://127.0.0.1:8000/api/products/sendcart/",
           {
@@ -49,7 +47,6 @@ export default function Auth() {
           },
         );
 
-        // set cart in Redux
         dispatch(
           setCart(
             cartRes.data.map((item) => ({
@@ -76,84 +73,105 @@ export default function Auth() {
             })),
           ),
         );
-
-
+        {console.log('cart.data:', cartRes.data);}
         navigate("/search");
       } else {
-        // 📝 REGISTER
         await axios.post(`${API_BASE}/register/`, formData);
 
         alert("Registration successful. Please login.");
         setIsLogin(true);
       }
     } catch (err) {
-      console.error(err); // always log full error for debugging
+      console.error(err); 
 
-      // Handle various error types
       if (err.response) {
-        // Backend returned an error
         setError(
           err.response.data.detail ||
             err.response.data.error ||
             "Invalid credentials",
         );
       } else if (err.request) {
-        // Request made but no response
         setError("No response from server. Check your connection.");
       } else {
-        // Other errors
         setError("Something went wrong: " + err.message);
       }
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "60px auto" }}>
-      <h2>{isLogin ? "Login" : "Register"}</h2>
+  <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <Container className="max-w-md">
+      <Card className="shadow-lg rounded-xl border-0">
+        <Card.Body className="p-6">
+          <h2 className="text-2xl font-semibold text-center mb-4">
+            {isLogin ? "Login to your account" : "Create an account"}
+          </h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          required
-          value={formData.username}
-          onChange={handleChange}
-        />
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Control
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="py-2"
+              />
+            </Form.Group>
 
-        {!isLogin && (
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
-        )}
+            {!isLogin && (
+              <Form.Group className="mb-3">
+                <Form.Control
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="py-2"
+                />
+              </Form.Group>
+            )}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          required
-          value={formData.password}
-          onChange={handleChange}
-        />
+            <Form.Group className="mb-3">
+              <Form.Control
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="py-2"
+              />
+            </Form.Group>
 
-        <button type="submit">{isLogin ? "Login" : "Register"}</button>
-      </form>
+            {error && (
+              <div className="text-red-500 text-sm mb-3 text-center">
+                {error}
+              </div>
+            )}
 
-      {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+            <Button
+              type="submit"
+              className="w-full py-2 bg-black border-0 hover:bg-gray-800 transition"
+            >
+              {isLogin ? "Login" : "Register"}
+            </Button>
+          </Form>
 
-      <p
-        style={{ cursor: "pointer", color: "blue", marginTop: "10px" }}
-        onClick={() => setIsLogin(!isLogin)}
-      >
-        {isLogin
-          ? "Don't have an account? Register"
-          : "Already have an account? Login"}
-      </p>
-    </div>
-  );
+          <p
+            className="text-sm text-center mt-4 text-blue-600 cursor-pointer hover:underline"
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin
+              ? "Don't have an account? Register"
+              : "Already have an account? Login"}
+          </p>
+        </Card.Body>
+      </Card>
+    </Container>
+  </div>
+);
+
 }
