@@ -75,9 +75,25 @@ function Products() {
                     </div>
 
                     {/* Add to Cart */}
-                    <Button
+                    {/* <Button
                       variant="dark"
                       className="mt-3 w-full rounded-lg text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dispatch(addToCart(item));
+                      }}
+                    >
+                      Add to Cart
+                    </Button> */}
+                    <Button
+                      variant="dark"
+                      className="
+                        mt-3 w-full rounded-lg text-sm
+                        transition-all duration-200
+                        hover:scale-[1.02]
+                        active:scale-95
+                        active:opacity-90
+                          "
                       onClick={(e) => {
                         e.stopPropagation();
                         dispatch(addToCart(item));

@@ -33,13 +33,7 @@ export default function ExampleCarouselImage() {
       <Container className="pb-8">
         <Row className="g-4">
           {products.map((item) => (
-            <Col
-              key={item.id}
-              xs={12}
-              sm={6}
-              md={4}
-              lg={3}
-            >
+            <Col key={item.id} xs={12} sm={6} md={4} lg={3}>
               <Card
                 className="h-full rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
                 onClick={() =>
@@ -71,9 +65,15 @@ export default function ExampleCarouselImage() {
 
                   <Button
                     variant="dark"
-                    className="mt-3 w-full rounded-lg text-sm"
+                    className="
+    mt-3 w-full rounded-lg text-sm
+    transition-all duration-200
+    hover:scale-[1.02]
+    active:scale-95
+    active:opacity-90
+  "
                     onClick={(e) => {
-                      e.stopPropagation(); 
+                      e.stopPropagation();
                       dispatch(addToCart(item));
                     }}
                   >

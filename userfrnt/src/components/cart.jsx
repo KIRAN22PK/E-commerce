@@ -4,7 +4,7 @@ import { increment, decrement, removeFromCart } from "../store/cartoperations";
 import AppNavbar from "./navbar";
 import { addToOrders } from "../store/orderslice";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect,useRef } from "react";
 import axios from "axios";
 import { setCart } from "../store/cartoperations.js";
 
@@ -26,11 +26,14 @@ export default function Cart() {
   const cartItems = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const fetchedOnce = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (!token) return;
-    if (cartItems.length > 0) return;
+    if (fetchedOnce.current) return;
+
+    fetchedOnce.current = true;
 
     const fetchCart = async () => {
       try {
@@ -38,7 +41,7 @@ export default function Cart() {
           "http://127.0.0.1:8000/api/products/sendcart/",
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         dispatch(
@@ -46,8 +49,8 @@ export default function Cart() {
             res.data.map((item) => ({
               ...item.product,
               quantity: item.quantity,
-            }))
-          )
+            })),
+          ),
         );
       } catch (err) {
         console.error("Cart fetch failed", err);
@@ -55,7 +58,7 @@ export default function Cart() {
     };
 
     fetchCart();
-  }, [cartItems.length, dispatch]);
+  }, [dispatch]);
 
   return (
     <>
@@ -71,13 +74,7 @@ export default function Cart() {
         ) : (
           <Row className="g-4">
             {cartItems.map((item) => (
-              <Col
-                key={item.id}
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-              >
+              <Col key={item.id} xs={12} sm={6} md={4} lg={3}>
                 <Card
                   className="h-full rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
                   onClick={() =>
@@ -116,8 +113,14 @@ export default function Cart() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button
-                        variant="outline-danger"
                         size="sm"
+                        className="
+                        w-full rounded-lg text-sm
+                        transition-all duration-200
+                        hover:scale-[1.02]
+                        active:scale-95
+                        active:opacity-90
+                          "
                         onClick={() => dispatch(removeFromCart(item))}
                       >
                         Remove
@@ -132,9 +135,7 @@ export default function Cart() {
                           −
                         </Button>
 
-                        <span className="font-medium">
-                          {item.quantity}
-                        </span>
+                        <span className="font-medium">{item.quantity}</span>
 
                         <Button
                           variant="outline-secondary"
@@ -150,13 +151,19 @@ export default function Cart() {
                       className="mt-3 border-t pt-2"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <p className="text-primary font-semibold mb-2">
+                      <p className="text-success font-semibold mb-2">
                         Total: ₹ {item.price * item.quantity}
                       </p>
 
                       <Button
                         variant="primary"
-                        className="w-full rounded-lg"
+                        className="
+                        w-full rounded-lg text-sm
+                        transition-all duration-200
+                        hover:scale-[1.02]
+                        active:scale-95
+                        active:opacity-90
+                          "
                         onClick={() => dispatch(addToOrders(item))}
                       >
                         Buy Now
