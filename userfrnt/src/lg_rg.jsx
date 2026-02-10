@@ -29,7 +29,7 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const res = await axios.post(`${API_BASE}/login/`, {
+        const res = await axios.post(`${API_BASE}/api/auth/login/`, {
           username: formData.username,
           password: formData.password,
         });
@@ -76,7 +76,7 @@ export default function Auth() {
         {console.log('cart.data:', cartRes.data);}
         navigate("/search");
       } else {
-        await axios.post(`${API_BASE}/register/`, formData);
+        await axios.post(`${API_BASE}/api/auth/register/`, formData);
 
         alert("Registration successful. Please login.");
         setIsLogin(true);
