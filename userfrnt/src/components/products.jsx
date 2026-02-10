@@ -6,7 +6,7 @@ import Carousel from "react-bootstrap/Carousel";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { setProducts } from "../store/productslice.js";
-
+import API_BASE from "../config/api.js";
 /* ⭐ Inline Stars */
 function Stars({ rating }) {
   const full = Math.floor(rating);
@@ -120,15 +120,15 @@ function Products() {
               {[
                 {
                   img: "/images/mensfootwear.jpg",
-                  url: "http://127.0.0.1:8000/api/products/mens-footwear/",
+                  url: `${API_BASE}/api/products/mens-footwear/`,
                 },
                 {
                   img: "/images/mensfullhands.jpg",
-                  url: "http://127.0.0.1:8000/api/products/mens-fullhands/",
+                  url: `${API_BASE}/api/products/mens-fullhands/`,
                 },
                 {
                   img: "/images/menshalfhands.jpg",
-                  url: "http://127.0.0.1:8000/api/products/mens-halfhands/",
+                  url: `${API_BASE}/api/products/mens-halfhands/`,
                 },
               ].map((item, index) => (
                 <Carousel.Item key={index}>
@@ -152,7 +152,7 @@ function Products() {
                 <div
                   onClick={() =>
                     fetchCarouselProducts(
-                      "http://127.0.0.1:8000/api/products/mobiles/",
+                      `${API_BASE}/api/products/mobiles/`,
                     )
                   }
                   className="relative w-full sm:w-1/2 h-48 rounded-xl overflow-hidden cursor-pointer group shadow-md"
@@ -176,7 +176,7 @@ function Products() {
                 <div
                   onClick={() =>
                     fetchCarouselProducts(
-                      "http://127.0.0.1:8000/api/products/fans/",
+                     `${API_BASE}/api/products/fans/`,
                     )
                   }
                   className="relative w-full sm:w-1/2 h-48 rounded-xl overflow-hidden cursor-pointer group shadow-md"
@@ -198,7 +198,7 @@ function Products() {
               <div
                 onClick={() =>
                   fetchCarouselProducts(
-                    "http://127.0.0.1:8000/api/products/bulbs/",
+                    `${API_BASE}/api/products/bulbs/`,
                   )
                 }
                 className="relative w-full h-64 rounded-xl overflow-hidden cursor-pointer group shadow-lg"

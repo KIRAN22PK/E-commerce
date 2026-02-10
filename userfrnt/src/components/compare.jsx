@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AppNavbar from "./navbar";
 import axios from "axios";
-
+import API_BASE from "../config/api";
 export default function ProductCompare() {
   const [query, setQuery] = useState("");
 
@@ -19,7 +19,7 @@ export default function ProductCompare() {
 
   const fetchLeftProducts = async () => {
     const res = await axios.post(
-      "http://127.0.0.1:8000/api/products/semantic-search/",
+     `${API_BASE}/api/products/semantic-search/`,
       { query: leftSearch },
       {
         headers: {
@@ -32,7 +32,7 @@ export default function ProductCompare() {
 
   const fetchRightProducts = async () => {
     const res = await axios.post(
-      "http://127.0.0.1:8000/api/products/semantic-search/",
+      `${API_BASE}/api/products/semantic-search/`,
       { query: rightSearch },
       {
         headers: {
@@ -54,7 +54,7 @@ export default function ProductCompare() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/products/compare/",
+        `${API_BASE}/api/products/compare/`,
         {
           query,
           product1_id: leftSelected.id,

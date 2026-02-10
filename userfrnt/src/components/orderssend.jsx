@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-
+import API_BASE from "../config/api";
 export default function OrderSend() {
   const cart = useSelector((state) => state.orders.items);
 
@@ -14,7 +14,7 @@ export default function OrderSend() {
     const syncCart = async () => {
       try {
         await axios.post(
-          "http://127.0.0.1:8000/api/orders/buy/",
+          `${API_BASE}/api/orders/buy/`,
           cart.map((item) => ({
             product_id: item.id,
             quantity: item.quantity,

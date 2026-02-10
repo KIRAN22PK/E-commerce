@@ -6,7 +6,7 @@ import { setCart } from "./store/cartoperations.js";
 import { setOrders } from "./store/orderslice.js";
 import { setSearchQuery } from "./store/searchSlice.js";
 import { Container, Card, Form, Button } from "react-bootstrap";
-const API_BASE = "http://127.0.0.1:8000/api/auth";
+import API_BASE from "./config/api.js";
 
 export default function Auth() {
   const dispatch = useDispatch();
@@ -39,7 +39,7 @@ export default function Auth() {
         localStorage.setItem("username", res.data.username);
         dispatch(setSearchQuery(""));
         const cartRes = await axios.get(
-          "http://127.0.0.1:8000/api/products/sendcart/",
+          `${API_BASE}/api/products/sendcart/`,
           {
             headers: {
               Authorization: `Bearer ${res.data.access}`,
@@ -57,7 +57,7 @@ export default function Auth() {
         );
 
         const ordersRes = await axios.get(
-          "http://127.0.0.1:8000/api/orders/list/",
+          `${API_BASE}/api/orders/list/`,
           {
             headers: {
               Authorization: `Bearer ${res.data.access}`,

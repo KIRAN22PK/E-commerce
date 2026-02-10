@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect,useRef } from "react";
 import axios from "axios";
 import { setCart } from "../store/cartoperations.js";
-
+import API_BASE from "../config/api.js";
 function Stars({ rating }) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
@@ -38,7 +38,7 @@ export default function Cart() {
     const fetchCart = async () => {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/products/sendcart/",
+          `${API_BASE}/api/products/sendcart/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },

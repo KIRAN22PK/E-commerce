@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setRProducts, setRLoading } from "../store/recommendation";
 import { addToCart } from "../store/cartoperations";
 import { useNavigate } from "react-router-dom";
-
+import API_BASE from "../config/api";
 /* ⭐ Inline Stars */
 function Stars({ rating }) {
   const full = Math.floor(rating);
@@ -35,7 +35,7 @@ export default function Recommendations() {
         dispatch(setRLoading(true));
 
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/products/recommendations/",
+          `${API_BASE}/api/products/recommendations/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access")}`,

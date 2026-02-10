@@ -2,7 +2,7 @@ import { Card, Button, Form } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useLocation } from "react-router-dom";
-
+import API_BASE from "../config/api";
 function Stars({ rating }) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
@@ -32,7 +32,7 @@ export default function ViewItem() {
   useEffect(() => {
     if (!item) {
       axios
-        .get(`http://127.0.0.1:8000/api/products/${id}/`)
+        .get(`${API_BASE}/api/products/${id}/`)
         .then((res) => setItem(res.data))
         .catch((err) => console.error(err));
     }
@@ -47,7 +47,7 @@ export default function ViewItem() {
 
   const fetchReviews = () => {
     axios
-      .get(`http://127.0.0.1:8000/api/products/${id}/reviews/`,
+      .get(`${API_BASE}/api/products/${id}/reviews/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access")}`,
@@ -69,7 +69,7 @@ export default function ViewItem() {
 
     axios
       .post(
-        `http://127.0.0.1:8000/api/products/${id}/add-review/`,
+        `${API_BASE}/api/products/${id}/add-review/`,
         { review_text: reviewText },
         {
           headers: {

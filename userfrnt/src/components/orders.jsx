@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setOrders } from "../store/orderslice";
+import API_BASE from "../config/api";
 function Stars({ rating }) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
@@ -32,7 +33,7 @@ export default function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/orders/list/",
+          `${API_BASE}/api/orders/list/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
