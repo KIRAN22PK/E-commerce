@@ -17,6 +17,11 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://e-commerce-frontend-iv9h.onrender.com",
+    "https://e-commerce-ol34.onrender.com",
+]
+
 
 # Application definition
 
