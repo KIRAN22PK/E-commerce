@@ -3,11 +3,4 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  preview: {
-    host: true,
-    allowedHosts: [
-      "e-commerce-frontend-iv9h.onrender.com",
-      ".onrender.com"
-    ],
-  },
 });
