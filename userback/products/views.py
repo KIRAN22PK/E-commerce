@@ -6,9 +6,6 @@ from products.serializers import ProductSerializer,UserCartWriteSerializer,UserC
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from .ml.predict import predict_sentiment, sentiment_to_stars
-from .t5llm.t5answer import generate_answer_t5
-from .recommender.model_loader import load_model
-from .embedding_chat.pipeline import semantic_product_search
 from django.db.models import Avg
 
 @api_view(["POST"])
@@ -177,6 +174,7 @@ def list_orders(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def recommend_products(request):
+    from .recommender.model_loader import load_model
     user = request.user
 
     interactions = set(
@@ -217,6 +215,7 @@ def recommend_products(request):
 
 @api_view(["POST"])
 def semantic_search(request):
+    from .embedding_chat.pipeline import semantic_product_search
     query = request.data.get("query", "")
     products,answer= semantic_product_search(query)
     if not isinstance(answer, str):
@@ -251,6 +250,7 @@ def format_attributes(attrs):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def compare_products(request):
+    from .t5llm.t5answer import generate_answer_t5
     query = request.data.get("query")
     product1_id = request.data.get("product1_id")
     product2_id = request.data.get("product2_id")
@@ -290,6 +290,7 @@ def compare_products(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def add_review(request, product_id):
+    from .ml.predict import predict_sentiment, sentiment_to_stars
     user = request.user
 
     try:

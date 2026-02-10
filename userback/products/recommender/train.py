@@ -17,11 +17,9 @@ MODEL_PATH = os.path.join(
 def train_recommender():
     data = []
 
-    
     for o in UserOrder.objects.all():
         data.append([o.user_id, o.product_id, 3])
 
-   
     for c in UserCart.objects.all():
         data.append([c.user_id, c.product_id, 1])
 
@@ -30,17 +28,15 @@ def train_recommender():
 
     df = pd.DataFrame(data, columns=["user", "product", "score"])
 
-    
     matrix = df.pivot_table(
-    index="product",
-    columns="user",
-    values="score",
-    aggfunc="sum",
-    fill_value=0
+        index="product",
+        columns="user",
+        values="score",
+        aggfunc="sum",
+        fill_value=0
     )
 
     similarity = cosine_similarity(matrix)
-
 
     model = {
         "similarity": similarity,
@@ -51,3 +47,6 @@ def train_recommender():
         pickle.dump(model, f)
 
     print("✅ Cosine recommender trained and saved")
+
+if __name__ == "__main__":
+    train_recommender()
