@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     host: true,
-    allowedHosts: "all",
+    allowedHosts: [
+      "e-commerce-frontend-iv9h.onrender.com",
+      ".onrender.com"
+    ],
   },
 });
