@@ -1,7 +1,8 @@
-from .config import EMBEDDING_MODEL_NAME
-from sentence_transformers import SentenceTransformer
-embedding_model= SentenceTransformer(EMBEDDING_MODEL_NAME)
+from utils.ml_loader import get_embedding_model
+
+
 def embed_texts(texts):
+    embedding_model = get_embedding_model()
     return embedding_model.encode(
         texts,
         convert_to_numpy=True,

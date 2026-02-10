@@ -1,7 +1,10 @@
 import torch
-from .t5model import tokenizer, model
+from utils.ml_loader import get_t5_model
+
 
 def generate_answer_t5(context: str, query: str, max_length=150):
+    model, tokenizer = get_t5_model()
+
     prompt = f"""
     Answer the question using only the given context.
     Given context has 2 products with their attributes and values.
