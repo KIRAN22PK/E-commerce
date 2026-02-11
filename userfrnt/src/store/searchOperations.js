@@ -1,12 +1,14 @@
 import axios from "axios";
 import { searchStart, searchSuccess, searchFail } from "./searchSlice";
+import API_BASE from "../config/api.js";
+
 export const performSearch = (query,navigate) => async (dispatch) => {
   if (!query.trim()) return;
   dispatch(searchStart());
 
   try {
     const res = await axios.post(
-      "http://127.0.0.1:8000/api/products/semantic-search/",
+      `${API_BASE}/api/products/semantic-search/`,
       { query },
       {
         headers: {
