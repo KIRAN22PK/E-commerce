@@ -170,7 +170,7 @@
     "subcategory2": "daily wear",
     "brand": "Bata",
     "price": 799.0,
-    "description": "Bata menÆs footwear designed for durability and everyday comfort. Ideal for daily wear with a sturdy sole and classic styling.",
+    "description": "Bata men�s footwear designed for durability and everyday comfort. Ideal for daily wear with a sturdy sole and classic styling.",
     "likes_count": 0,
     "sold_count": 0,
     "attributes": {
@@ -197,7 +197,7 @@
     "subcategory2": "active wear",
     "brand": "Bata",
     "price": 899.0,
-    "description": "Bata menÆs sports shoes featuring a black upper with a contrasting white sole for a casual look. Designed with lace closure and cushioned comfort, ideal for workouts and daily active wear.",
+    "description": "Bata men�s sports shoes featuring a black upper with a contrasting white sole for a casual look. Designed with lace closure and cushioned comfort, ideal for workouts and daily active wear.",
     "likes_count": 0,
     "sold_count": 0,
     "attributes": {
@@ -224,7 +224,7 @@
     "subcategory2": "casual",
     "brand": "Bata",
     "price": 599.0,
-    "description": "Bata menÆs casual slip-on shoes in grey with a contrasting white sole for a relaxed, modern look. Lightweight and comfortable, perfect for everyday casual wear.",
+    "description": "Bata men�s casual slip-on shoes in grey with a contrasting white sole for a relaxed, modern look. Lightweight and comfortable, perfect for everyday casual wear.",
     "likes_count": 0,
     "sold_count": 0,
     "attributes": {
@@ -251,7 +251,7 @@
     "subcategory2": "casual",
     "brand": "Bata",
     "price": 599.0,
-    "description": "Bata menÆs slip-on shoes in earth green offer a natural, stylish look with everyday comfort. Lightweight design makes them ideal for casual daily wear.",
+    "description": "Bata men�s slip-on shoes in earth green offer a natural, stylish look with everyday comfort. Lightweight design makes them ideal for casual daily wear.",
     "likes_count": 0,
     "sold_count": 0,
     "attributes": {
@@ -562,14 +562,14 @@
       "color": "White",
       "air_flow": "High air delivery",
       "controls": "Button or regulator control",
-      "warranty": "Typically 1û2 years",
-      "speed_rpm": "Around 360û380 RPM",
+      "warranty": "Typically 1�2 years",
+      "speed_rpm": "Around 360�380 RPM",
       "motor_type": "Copper motor",
       "sweep_size": "1200 mm",
       "blade_count": "3",
       "product_type": "Ceiling Fan",
       "installation_type": "Ceiling mount",
-      "power_consumption": "Approx. 50û74 W"
+      "power_consumption": "Approx. 50�74 W"
     }
   }
 }
