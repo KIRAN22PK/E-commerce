@@ -75,15 +75,29 @@ WSGI_APPLICATION = 'userback.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": os.getenv("MYSQLDATABASE"),
+#         "USER": os.getenv("MYSQLUSER"),
+#         "PASSWORD": os.getenv("MYSQLPASSWORD"),
+#         "HOST": os.getenv("MYSQLHOST"),
+#         "PORT": os.getenv("MYSQLPORT", "3306"),
+#         "OPTIONS": {
+#             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+#         },
+#     }
+# }
+
+import os
 import dj_database_url
 
 DATABASES = {
     "default": dj_database_url.parse(
-        os.getenv("MYSQL_PUBLIC_URL"),
+        os.getenv("DATABASE_URL"),
         conn_max_age=600,
     )
 }
-
 
 
 
