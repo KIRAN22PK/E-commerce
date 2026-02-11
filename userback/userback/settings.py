@@ -91,31 +91,39 @@ WSGI_APPLICATION = 'userback.wsgi.application'
 import os
 import dj_database_url
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASES = {
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL"),
+        conn_max_age=0,  # important for free tier
+        ssl_require=True
+    )
+}
 
-if DATABASE_URL:
-    # Production (Render)
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-        )
-    }
-else:
-    # Local (Your PC MySQL)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": "django_db",               # Your local DB name
-            "USER": "django_user",             # Your MySQL user
-            "PASSWORD": "StrongPassword@123",  # Your MySQL password
-            "HOST": "127.0.0.1",
-            "PORT": "3306",
-            "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
-    }
+# DATABASE_URL = os.getenv("DATABASE_URL")
+
+# if DATABASE_URL:
+#     # Production (Render)
+#     DATABASES = {
+#         "default": dj_database_url.parse(
+#             DATABASE_URL,
+#             conn_max_age=600,
+#         )
+#     }
+# else:
+#     # Local (Your PC MySQL)
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.mysql",
+#             "NAME": "django_db",               # Your local DB name
+#             "USER": "django_user",             # Your MySQL user
+#             "PASSWORD": "StrongPassword@123",  # Your MySQL password
+#             "HOST": "127.0.0.1",
+#             "PORT": "3306",
+#             "OPTIONS": {
+#                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+#             },
+#         }
+#     }
 
 
 
