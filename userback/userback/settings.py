@@ -98,21 +98,35 @@ WSGI_APPLICATION = 'userback.wsgi.application'
 #         ssl_require=True
 #     )
 # }
-import os
-import dj_database_url
+# import os
+# import dj_database_url
 
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         os.environ.get("DATABASE_URL"),
+#         conn_max_age=0
+#     )
+# }
+
+# # Add this AFTER parsing
+# DATABASES["default"]["OPTIONS"] = {
+#     "ssl": {"ssl_mode": "REQUIRED"}
+# }
+# import os
+# import dj_database_url
+
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         os.environ.get("DATABASE_URL"),
+#         conn_max_age=0,
+#     )
+# }
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=0
-    )
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }
-
-# Add this AFTER parsing
-DATABASES["default"]["OPTIONS"] = {
-    "ssl": {"ssl_mode": "REQUIRED"}
-}
-
 # DATABASE_URL = os.getenv("DATABASE_URL")
 
 # if DATABASE_URL:
