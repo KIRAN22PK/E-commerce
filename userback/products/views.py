@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from products.models import Review, UserCart,Product,UserOrder,Review
+from products.models import Review, UserCart,Product,UserOrder
 from products.serializers import ProductSerializer,UserCartWriteSerializer,UserCartSerializer,UserOrderSerializer,UserOrderCreateSerializer,ReviewSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status

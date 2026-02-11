@@ -12,7 +12,7 @@ export default function CartSync() {
   const syncCart = async () => {
     try {
       await axios.post(
-       `${API_BASE}/api/products/receivecart`,
+       `${API_BASE}/api/products/receivecart/`,
         cart.map((item) => ({
           product_id: item.id,
           quantity: item.quantity,
