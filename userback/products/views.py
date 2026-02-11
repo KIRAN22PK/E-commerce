@@ -81,13 +81,13 @@ def mens_halfhands(request):
 
 @api_view(["GET"])
 def shoes(request):
+    print("TOTAL PRODUCTS IN PRODUCTION DB:", Product.objects.count())
     products = Product.objects.filter(
         gender="male",
         category="footwear",
         subcategory="shoe",
     )
-    print(products)
-
+    print("FILTERED PRODUCTS:", products)
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
