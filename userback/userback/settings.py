@@ -94,10 +94,10 @@ import dj_database_url
 DATABASES = {
     "default": dj_database_url.parse(
         os.environ.get("DATABASE_URL"),
-        conn_max_age=0,  # important for free tier
-        ssl_require=True
+        conn_max_age=0
     )
 }
+
 
 # DATABASE_URL = os.getenv("DATABASE_URL")
 
