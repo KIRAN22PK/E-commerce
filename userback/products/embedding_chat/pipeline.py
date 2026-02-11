@@ -56,7 +56,7 @@ def extract_price_filters(q):
         return price_gt, price_lt
     return price_gt, price_lt
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+# OLLAMA_URL = "http://localhost:11434/api/generate"
 
 def semantic_product_search(query):
     # 1️⃣ Light preprocessing (NOT semantic normalization)

@@ -15,7 +15,7 @@ _product_id_map = None
 
 def save_index(product_ids, embeddings):
     global _index, _product_id_map
-
+    print("embed save")
     vectors = np.array(embeddings).astype("float32")
 
     _index = faiss.IndexFlatL2(EMBEDDING_DIM)
@@ -42,6 +42,10 @@ def load_index():
         _index = None
         _product_id_map = []
         return
+    print("INDEX PATH:", INDEX_PATH)
+    print("MAP PATH:", MAP_PATH)
+    print("INDEX EXISTS:", os.path.exists(INDEX_PATH))
+    print("MAP EXISTS:", os.path.exists(MAP_PATH))
 
     print("✅ Loading FAISS index from disk...")
     _index = faiss.read_index(INDEX_PATH)

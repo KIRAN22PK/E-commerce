@@ -14,4 +14,5 @@ class Command(BaseCommand):
         embeddings = embed_texts(texts)
         product_ids = [p.id for p in products]
         save_index(product_ids, embeddings)
+        print("embed build")
         self.stdout.write("✅ Embeddings generated successfully")
