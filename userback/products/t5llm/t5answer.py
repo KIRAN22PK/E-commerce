@@ -1,9 +1,9 @@
-import torch
-from utils.ml_loader import get_t5_model
+import requests
+import os
 
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 def generate_answer_t5(context: str, query: str, max_length=150):
-    model, tokenizer = get_t5_model()
 
     prompt = f"""
     Answer the question using only the given context.
@@ -17,19 +17,26 @@ def generate_answer_t5(context: str, query: str, max_length=150):
     {query}
     """
 
-    inputs = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512
+    response = requests.post(
+        "https://api-inference.huggingface.co/models/google/flan-t5-small",
+        headers={
+            "Authorization": f"Bearer {HF_TOKEN}"
+        },
+        json={
+            "inputs": prompt,
+            "parameters": {
+                "max_length": max_length
+            }
+        }
     )
 
-    outputs = model.generate(
-        input_ids=inputs.input_ids,
-        attention_mask=inputs.attention_mask,
-        max_length=max_length,
-        num_beams=4,
-        early_stopping=True
-    )
+    result = response.json()
 
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # If model is loading
+    if isinstance(result, dict) and "error" in result:
+        return "Model is loading. Please try again in a few seconds."
+
+    if isinstance(result, list):
+        return result[0]["generated_text"]
+
+    return "Unable to generate response."
