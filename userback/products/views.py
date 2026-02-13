@@ -215,24 +215,27 @@ def recommend_products(request):
 
 @api_view(["POST"])
 def semantic_search(request):
-    from .embedding_chat.pipeline import semantic_product_search
-    query = request.data.get("query", "")
-    products,answer= semantic_product_search(query)
-    if not isinstance(answer, str):
-      answer = "Sorry, I couldn’t find suitable products for your request."
-    serializer = ProductSerializer(products, many=True)
-    return Response({
-        "answer": answer,
-        "products": 
-            # {
-            #     "id": p.id,
-            #     "name": p.name,
-            #     "price": p.price,
-            #     "image": p.image_url
-            # } for p in products
-            serializer.data
-        
-    })
+    try:
+        from .embedding_chat.pipeline import semantic_product_search
+
+        query = request.data.get("query", "")
+
+        products, answer = semantic_product_search(query)
+
+        serializer = ProductSerializer(products, many=True)
+
+        return Response({
+            "answer": answer,
+            "products": serializer.data
+        })
+
+    except Exception as e:
+        print("SEMANTIC ERROR:", str(e))
+        return Response(
+            {"error": str(e)},
+            status=500
+        )
+
     
 def format_attributes(attrs):
     if not attrs:
