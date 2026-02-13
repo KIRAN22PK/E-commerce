@@ -35,10 +35,10 @@ import os
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 def get_t5_model(prompt):
-    API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"
+    API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-small"
 
     headers = {
-        "Authorization": f"Bearer {HF_TOKEN}"
+        "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
     }
 
     payload = {
@@ -50,25 +50,26 @@ def get_t5_model(prompt):
 
     response = requests.post(API_URL, headers=headers, json=payload)
 
-    if response.status_code != 200:
-        return "Model is loading or unavailable. Try again."
-
     data = response.json()
 
-    if isinstance(data, list):
-        return data[0].get("generated_text", "No response generated.")
+    if isinstance(data, dict) and "error" in data:
+        print("HF ERROR:", data)
+        return "Model error"
 
-    return "Unexpected model response."
+    return data[0]["generated_text"]
+
 
 
 def get_embedding(text):
-    API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+    API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
 
     headers = {
         "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
     }
 
-    payload = {"inputs": text}
+    payload = {
+        "inputs": text
+    }
 
     response = requests.post(API_URL, headers=headers, json=payload)
 
@@ -78,9 +79,6 @@ def get_embedding(text):
         print("HF ERROR:", data)
         return None
 
-    if isinstance(data, list):
-        return data[0]
+    return data[0]
 
-    print("Unexpected HF response:", data)
-    return None
 
