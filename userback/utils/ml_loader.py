@@ -65,21 +65,22 @@ def get_embedding(text):
     API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
 
     headers = {
-        "Authorization": f"Bearer {HF_TOKEN}"
+        "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
     }
 
-    payload = {
-        "inputs": text
-    }
+    payload = {"inputs": text}
 
     response = requests.post(API_URL, headers=headers, json=payload)
 
-    if response.status_code != 200:
-        return []
-
     data = response.json()
+
+    if isinstance(data, dict) and "error" in data:
+        print("HF ERROR:", data)
+        return None
 
     if isinstance(data, list):
         return data[0]
 
-    return []
+    print("Unexpected HF response:", data)
+    return None
+
