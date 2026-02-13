@@ -57,28 +57,41 @@ def get_t5_model(prompt):
         return "Model error"
 
     return data[0]["generated_text"]
+from sentence_transformers import SentenceTransformer
+
+EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
+EMBEDDING_DIM = 384
+
+_embedding_model = None
+
+def get_embedding_model():
+    global _embedding_model
+
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+
+    return _embedding_model
 
 
+# def get_embedding(text):
+#     API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
 
-def get_embedding(text):
-    API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
+#     headers = {
+#         "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
+#     }
 
-    headers = {
-        "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
-    }
+#     payload = {
+#         "inputs": text
+#     }
 
-    payload = {
-        "inputs": text
-    }
+#     response = requests.post(API_URL, headers=headers, json=payload)
 
-    response = requests.post(API_URL, headers=headers, json=payload)
+#     data = response.json()
 
-    data = response.json()
+#     if isinstance(data, dict) and "error" in data:
+#         print("HF ERROR:", data)
+#         return None
 
-    if isinstance(data, dict) and "error" in data:
-        print("HF ERROR:", data)
-        return None
-
-    return data[0]
+#     return data[0]
 
 
