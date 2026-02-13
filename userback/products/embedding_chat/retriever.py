@@ -7,12 +7,20 @@ def retrieve_products(query, top_k=10):
     # model=get_embedding()
     # query_vector = model.encode(query).astype("float32")
     # return search_vectors(query_vector, k=top_k)
+    # embedding = get_embedding(query)
+
+    # if not embedding:
+    #     return []
+
+    # # HF returns [[vector]]
+    # query_vector = np.array(embedding[0]).astype("float32")
+
+    # return search_vectors(query_vector, k=top_k)
     embedding = get_embedding(query)
 
     if not embedding:
         return []
 
-    # HF returns [[vector]]
     query_vector = np.array(embedding[0]).astype("float32")
 
     return search_vectors(query_vector, k=top_k)

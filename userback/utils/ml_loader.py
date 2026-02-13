@@ -73,11 +73,13 @@ def get_embedding(text):
     API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
 
     headers = {
-        "Authorization": f"Bearer {HF_TOKEN}"
+        "Authorization": f"Bearer {HF_TOKEN}",
+        "Content-Type": "application/json"
     }
 
     payload = {
-        "inputs": text
+        "inputs": text,
+        "options": {"wait_for_model": True}
     }
 
     response = requests.post(API_URL, headers=headers, json=payload)
@@ -88,7 +90,7 @@ def get_embedding(text):
         print("HF EMBEDDING ERROR:", data)
         return None
 
-    return data  # returns embedding vector list
+    return data
 
 
 
