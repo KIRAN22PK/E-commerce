@@ -66,15 +66,13 @@ _embedding_model = None
 
 import requests
 import os
-
-HF_TOKEN = os.getenv("HF_TOKEN")
+import numpy as np
 
 def get_embedding(text):
     API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
 
     headers = {
-        "Authorization": f"Bearer {HF_TOKEN}",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
     }
 
     payload = {
@@ -83,14 +81,43 @@ def get_embedding(text):
     }
 
     response = requests.post(API_URL, headers=headers, json=payload)
-
     data = response.json()
 
     if isinstance(data, dict) and "error" in data:
         print("HF EMBEDDING ERROR:", data)
         return None
 
-    return data
+    # HF returns nested list → convert to numpy vector
+    embedding = np.array(data).astype("float32")
+    return embedding
+import requests
+import os
+import numpy as np
+
+def get_embedding(text):
+    API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2"
+
+    headers = {
+        "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
+    }
+
+    payload = {
+        "inputs": text,
+        "options": {"wait_for_model": True}
+    }
+
+    response = requests.post(API_URL, headers=headers, json=payload)
+    data = response.json()
+
+    if isinstance(data, dict) and "error" in data:
+        print("HF EMBEDDING ERROR:", data)
+        return None
+
+    # HF returns nested list → convert to numpy vector
+    embedding = np.array(data).astype("float32")
+    return embedding
+
+
 
 
 

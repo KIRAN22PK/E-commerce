@@ -16,11 +16,20 @@ def retrieve_products(query, top_k=10):
     # query_vector = np.array(embedding[0]).astype("float32")
 
     # return search_vectors(query_vector, k=top_k)
-    embedding = get_embedding(query)
+    
+    
+    # embedding = get_embedding(query)
 
-    if not embedding:
+    # if not embedding:
+    #     return []
+
+    # query_vector = np.array(embedding[0]).astype("float32")
+
+    # return search_vectors(query_vector, k=top_k)query_vector = get_embedding(query)
+    
+    query_vector = get_embedding(query)
+    
+    if query_vector is None:
         return []
-
-    query_vector = np.array(embedding[0]).astype("float32")
 
     return search_vectors(query_vector, k=top_k)
